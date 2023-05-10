@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Webcam Video Feed</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    body {
+      background-color: #1c1c1c;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .button-container {
+      text-align: center;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    img#video_feed {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+      border: 1px solid #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Webcam Video Feed</h1>
+  <div class="button-container">
+    <button id="start_recording">Start Recording</button>
+  </div>
+  <br />
+  <br />
+  <img id="video_feed" src="{{ url_for('video_feed') }}" />
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      var recording = false;
+
+      $('#start_recording').click(function () {
+        recording = true;
+        $.get('/start_recording');
+      });
+
+      $('#stop_recording').click(function () {
+        recording = false;
+        $.get('/stop_recording');
+      });
+
+      // Continuously update the video feed
+      setInterval(function () {
+        if (!recording) {
+          $('#video_feed').attr('src', "{{ url_for('video_feed') }}?" + new Date().getTime());
+        }
+      }, 100);
+    });
+  </script>
+</body>
+</html>

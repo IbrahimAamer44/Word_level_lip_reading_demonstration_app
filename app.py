@@ -29,6 +29,7 @@ def generate_frames():
         if recording:
             out.write(frame)  # Write the frame to the video file
 
+
         ret, buffer = cv2.imencode('.jpg', frame)
 
         cv2.flip(buffer, 0)
