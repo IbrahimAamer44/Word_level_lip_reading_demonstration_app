@@ -75,8 +75,7 @@ def stop_recording():
         recording = False
         out.release()
         #str = predict_video()
-    return render_template('result.html', sentence="prediction")
-
+    return "Recording stopped"
 
 @app.route('/predict_video')
 def predict_video():
