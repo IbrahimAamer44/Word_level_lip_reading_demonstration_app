@@ -1,6 +1,10 @@
 import cv2
 import time
 from flask import Flask, render_template, Response, request
+from LRCN import create_LRCN_model
+from record_video import record_vid
+from Helpers import predict_word_level, word_list, CLASSES_LIST, SEQUENCE_LENGTH, parse_sentence, most_freq_word, highest_prob_word
+
 
 app = Flask(__name__)
 video_capture = cv2.VideoCapture(0)  # 0 represents the default webcam
@@ -32,7 +36,7 @@ def generate_frames():
 
         ret, buffer = cv2.imencode('.jpg', frame)
 
-        cv2.flip(buffer, 0)
+        #buffer = cv2.flip(buffer, 0)
 
         frame = buffer.tobytes()
 
@@ -66,12 +70,35 @@ def start_recording():
 def stop_recording():
     global recording, out
 
+
     if recording:
         recording = False
         out.release()
+        #str = predict_video()
+    return render_template('result.html', sentence="prediction")
 
-    return "Recording stopped"
 
+@app.route('/predict_video')
+def predict_video():
+    global output_filename
+
+    output_filename = "./Demonstration/Demo.mp4"
+
+    #if recording:
+    #    recording = False
+    #    out.release()
+
+    weights_path = "./Demonstration/Model_1-Without-CTC-LOSS_checkpoint1_tillbatch_9.h5"
+    model = create_LRCN_model()
+    model.load_weights(weights_path)
+
+    print("\nModel predicting...")
+    prediction = predict_word_level(output_filename, word_list, model, CLASSES_LIST, SEQUENCE_LENGTH)
+
+    # print(parse_sentence(prediction, highest_prob_word))
+    print(parse_sentence(prediction, most_freq_word))
+
+    return "Prediction Completed"
 
 if __name__ == '__main__':
     app.run(debug=True)
