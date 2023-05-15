@@ -4,7 +4,7 @@ from flask import Flask, render_template, Response, request
 from LRCN import create_LRCN_model
 from record_video import record_vid
 from Helpers import predict_word_level, word_list, CLASSES_LIST, SEQUENCE_LENGTH, parse_sentence, most_freq_word, highest_prob_word
-
+from datetime import datetime
 
 app = Flask(__name__)
 video_capture = cv2.VideoCapture(0)  # 0 represents the default webcam
@@ -16,12 +16,29 @@ out = None
 
 start_time = 0
 
+string_to_display = "آپ کیسے ہوں جی کیوں سات"
+
+def get_time():
+    return datetime.now().strftime("%H:%M:%S")
+
+@app.route('/time')
+def time_endpoint():
+    def generate():
+        while True:
+            yield f"data: {string_to_display}\n\n"
+            #time.sleep(1)
+
+    return app.response_class(generate(), mimetype='text/event-stream')
 
 def generate_frames():
     global recording,start_time
 
     while True:
         success, frame = video_capture.read()  # Read frames from the webcam
+
+        frame = cv2.flip(frame, 1)
+
+
         if not success:
             break
 
@@ -46,11 +63,13 @@ def generate_frames():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
-
+    global string_to_display
+    return render_template("index.html", sentence=string_to_display)
 
 @app.route('/video_feed')
 def video_feed():
+    global string_to_display
+
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -68,20 +87,20 @@ def start_recording():
 
 @app.route('/stop_recording')
 def stop_recording():
-    global recording, out
+    global recording, out, string_to_display
 
 
     if recording:
         recording = False
         out.release()
-        #str = predict_video()
-    return "Recording stopped"
+        string_to_display = predict_video()
+    return "Recording Stopped"
 
 @app.route('/predict_video')
 def predict_video():
     global output_filename
 
-    output_filename = "./Demonstration/Demo.mp4"
+    output_filename = "recorded_video.mp4"
 
     #if recording:
     #    recording = False
@@ -97,7 +116,9 @@ def predict_video():
     # print(parse_sentence(prediction, highest_prob_word))
     print(parse_sentence(prediction, most_freq_word))
 
-    return "Prediction Completed"
+    sentence = parse_sentence(prediction, most_freq_word)
+
+    return sentence
 
 if __name__ == '__main__':
     app.run(debug=True)

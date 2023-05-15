@@ -1,3 +1,19 @@
+<!DOCTYPE html>
 <html>
-<img src="logo.png" alt="Italian Trulli">
+<head>
+    <title>Time Display</title>
+</head>
+<body>
+    <h1>Current Time:</h1>
+    <div id="time"></div>
+
+    <script>
+        var eventSource = new EventSource("/time");
+        var timeElement = document.getElementById("time");
+
+        eventSource.onmessage = function(event) {
+            timeElement.innerHTML = event.data;
+        };
+    </script>
+</body>
 </html>

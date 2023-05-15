@@ -110,8 +110,21 @@
 }  
 
 .flex-child:first-child {
-    margin-right: 40px;
+    margin-right: 5px;
+
 } 
+.flex-child2 {
+    flex: 1;
+    flex-flow: row;
+
+    margin-top: 18px;
+    margin-right: 80;
+    border: 1px solid rgb(63, 14, 82);
+    width: 680px;
+    height: 480px;
+    background-image: linear-gradient(to bottom right, rgb(27, 26, 27), rgb(53, 9, 50));
+
+}  
   </style>
 </head>
 <body>
@@ -119,7 +132,6 @@
   <div class="button-container">
       <img src="/static/logo1.png"  width="320" height="135">
 
-    <br>
   </div>
 
   
@@ -137,9 +149,21 @@
     
     </div>
     
-    <div class="flex-child green">
-      Column 2
-      <p>{{ sentence }}</p>
+    <div class="flex-child2"  >
+      <h1> Transcription </h1>
+
+      <h1>
+      <div id="time"></div>
+
+      <script>
+          var eventSource = new EventSource("/time");
+          var timeElement = document.getElementById("time");
+  
+          eventSource.onmessage = function(event) {
+              timeElement.innerHTML = event.data;
+          };
+      </script>
+      </h1>
     </div>
     
   </div>
